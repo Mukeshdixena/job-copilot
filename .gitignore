@@ -1,0 +1,21 @@
+# Project specification & design docs (local only)
+implementation-spec.md
+design-scope-clarification/
+
+# Claude config
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.iws
+*.iml
+*.ipr
+
+# Env files
+.env
+.env.*
