@@ -1,0 +1,33 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: jobagent
+      POSTGRES_USER: jobagent
+      # Local dev only (not exposed beyond localhost): works around a Docker Desktop /
+      # Windows port-forward quirk where SCRAM auth negotiation fails over the host-mapped
+      # port even though the exact same credentials work from inside the container.
+      # No password is required or checked under trust auth.
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5433:5432"
+    volumes:
+      - jobagent-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jobagent"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  jobagent-postgres-data:
