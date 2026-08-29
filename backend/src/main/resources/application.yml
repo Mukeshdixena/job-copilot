@@ -3,7 +3,7 @@ spring:
     name: backend
 
   datasource:
-    url: ${JOBAGENT_DB_URL:jdbc:postgresql://localhost:5433/jobagent}
+    url: ${JOBAGENT_DB_URL:jdbc:postgresql://localhost:5544/jobagent}
     username: ${JOBAGENT_DB_USER:jobagent}
     password: ${JOBAGENT_DB_PASSWORD:jobagent}
   jpa:
@@ -21,7 +21,7 @@ spring:
   data:
     redis:
       host: ${JOBAGENT_REDIS_HOST:localhost}
-      port: ${JOBAGENT_REDIS_PORT:6380}
+      port: ${JOBAGENT_REDIS_PORT:6479}
 
   docker:
     compose:
@@ -39,6 +39,8 @@ management:
         include: health,info
 
 jobagent:
+  cors:
+    allowed-origins: ${JOBAGENT_CORS_ORIGINS:http://localhost:3000,http://localhost:3001,http://localhost:3002}
   jwt:
     # Dev-only symmetric secret. Override with JOBAGENT_JWT_SECRET in every real environment.
     secret: ${JOBAGENT_JWT_SECRET:dev-only-secret-key-change-me-please-this-must-be-at-least-256-bits-long}

@@ -4,13 +4,9 @@ services:
     environment:
       POSTGRES_DB: jobagent
       POSTGRES_USER: jobagent
-      # Local dev only (not exposed beyond localhost): works around a Docker Desktop /
-      # Windows port-forward quirk where SCRAM auth negotiation fails over the host-mapped
-      # port even though the exact same credentials work from inside the container.
-      # No password is required or checked under trust auth.
-      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_PASSWORD: jobagent
     ports:
-      - "5433:5432"
+      - "5544:5432"
     volumes:
       - jobagent-postgres-data:/var/lib/postgresql/data
     healthcheck:
@@ -22,7 +18,7 @@ services:
   redis:
     image: redis:7-alpine
     ports:
-      - "6380:6379"
+      - "6479:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
