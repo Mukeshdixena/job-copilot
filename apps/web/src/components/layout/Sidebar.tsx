@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuth } from "@/lib/auth/AuthProvider";
 
 interface NavItem {
   href: string;
@@ -86,7 +87,16 @@ function NavRow({ item, active }: { item: NavItem; active: boolean }) {
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, logout } = useAuth();
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
+
+  const initials = user?.email ? user.email.slice(0, 2).toUpperCase() : "--";
+
+  const handleSignOut = () => {
+    logout();
+    router.push("/login");
+  };
 
   return (
     <aside
@@ -169,7 +179,24 @@ export function Sidebar() {
             </span>
           </span>
         </Link>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "9px 4px 2px" }}>
+        <button
+          type="button"
+          onClick={handleSignOut}
+          title="Sign out"
+          className="hover:bg-[#16233C]"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "9px 4px 2px",
+            width: "100%",
+            border: 0,
+            background: "none",
+            cursor: "pointer",
+            textAlign: "left",
+            borderRadius: 6,
+          }}
+        >
           <div
             style={{
               width: 24,
@@ -186,14 +213,26 @@ export function Sidebar() {
               fontFamily: "var(--font-mono)",
             }}
           >
-            MK
+            {initials}
           </div>
           <div style={{ minWidth: 0, flex: 1 }}>
-            <div style={{ fontSize: 11.5, fontWeight: 580, color: "#CBD5E1", lineHeight: 1.2 }}>Mukesh K.</div>
+            <div
+              style={{
+                fontSize: 11.5,
+                fontWeight: 580,
+                color: "#CBD5E1",
+                lineHeight: 1.2,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {user?.email ?? "Loading…"}
+            </div>
             <div style={{ fontSize: 10, color: "#475569" }}>Job search · Active</div>
           </div>
-          <span style={{ color: "#475569", fontSize: 11 }}>⌄</span>
-        </div>
+          <span style={{ color: "#475569", fontSize: 11 }}>⏻</span>
+        </button>
       </div>
     </aside>
   );
