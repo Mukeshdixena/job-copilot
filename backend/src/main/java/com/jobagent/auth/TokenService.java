@@ -6,6 +6,8 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
@@ -32,7 +34,11 @@ public class TokenService {
             .claim("roles", List.of(user.getRole().name()))
             .build();
 
-    String token = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+    // NimbusJwtEncoder assumes RS256 unless told otherwise; our signing key is a symmetric
+    // HS256 secret (see JwtConfig), so the header's algorithm must be set explicitly or key
+    // selection fails with "Failed to select a JWK signing key".
+    JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
+    String token = jwtEncoder.encode(JwtEncoderParameters.from(header, claims)).getTokenValue();
     long expiresInSeconds = ChronoUnit.SECONDS.between(now, expiresAt);
     return new IssuedToken(token, expiresInSeconds);
   }
