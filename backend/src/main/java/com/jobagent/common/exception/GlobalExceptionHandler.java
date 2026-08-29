@@ -2,6 +2,8 @@ package com.jobagent.common.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -11,6 +13,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+  private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<ApiError> handleValidation(
@@ -32,6 +36,15 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(EmailAlreadyExistsException.class)
   public ResponseEntity<ApiError> handleEmailExists(
       EmailAlreadyExistsException ex, HttpServletRequest request) {
+    ApiError error =
+        ApiError.of(
+            HttpStatus.CONFLICT.value(), "Conflict", ex.getMessage(), request.getRequestURI());
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+  }
+
+  @ExceptionHandler(DuplicateResourceException.class)
+  public ResponseEntity<ApiError> handleDuplicateResource(
+      DuplicateResourceException ex, HttpServletRequest request) {
     ApiError error =
         ApiError.of(
             HttpStatus.CONFLICT.value(), "Conflict", ex.getMessage(), request.getRequestURI());
@@ -61,6 +74,7 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ApiError> handleUnexpected(Exception ex, HttpServletRequest request) {
+    log.error("Unhandled exception on {} {}", request.getMethod(), request.getRequestURI(), ex);
     ApiError error =
         ApiError.of(
             HttpStatus.INTERNAL_SERVER_ERROR.value(),
